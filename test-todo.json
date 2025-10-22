@@ -1,7 +1,0 @@
-{
-  "title": "Erste Test Todo",
-  "description": "Das ist meine erste Todo über die API",
-  "priority": "high",
-  "due_date": "2025-10-25",
-  "tags": ["test", "api"]
-}

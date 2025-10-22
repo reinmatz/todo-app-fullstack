@@ -37,3 +37,6 @@ coverage/
 .cache/
 temp/
 tmp/
+
+# Test files
+test-*.json
