@@ -1,0 +1,20 @@
+# Development Dockerfile for Backend
+FROM node:20-alpine
+
+# Install build dependencies for native modules (bcrypt)
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including devDependencies)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]

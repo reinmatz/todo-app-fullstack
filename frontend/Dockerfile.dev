@@ -1,0 +1,20 @@
+# Development Dockerfile for Frontend
+FROM node:20-alpine
+
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+EXPOSE 8080
+
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
