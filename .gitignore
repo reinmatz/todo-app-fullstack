@@ -40,3 +40,12 @@ tmp/
 
 # Test files
 test-*.json
+
+# Logs
+backend/logs/
+*.log
+
+# SSL Certificates (development)
+certs/*.pem
+certs/*.key
+!certs/.gitkeep

@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import User from '../models/User.js';
 import { generateToken } from '../config/jwt.js';
+import logger from '../utils/logger.js';
 
 /**
  * Register a new user
@@ -18,6 +19,13 @@ export const register = async (req, res) => {
     });
 
     if (existingUser) {
+      logger.logSecurityEvent('REGISTRATION_FAILED_DUPLICATE', {
+        email,
+        username,
+        ip: req.ip,
+        reason: existingUser.email === email ? 'email_exists' : 'username_exists'
+      });
+
       return res.status(400).json({
         success: false,
         error: existingUser.email === email
@@ -38,6 +46,13 @@ export const register = async (req, res) => {
       id: user.id,
       username: user.username,
       email: user.email
+    });
+
+    logger.info('User registered successfully', {
+      userId: user.id,
+      username: user.username,
+      email: user.email,
+      ip: req.ip,
     });
 
     res.status(201).json({
@@ -78,6 +93,7 @@ export const login = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
+      logger.logAuthFailure(email, req.ip, 'user_not_found');
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
@@ -88,6 +104,7 @@ export const login = async (req, res) => {
     const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
+      logger.logAuthFailure(email, req.ip, 'invalid_password');
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'

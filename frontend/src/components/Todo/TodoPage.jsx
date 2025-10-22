@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useTodos } from '../../contexts/TodoContext';
 import TodoItem from './TodoItem';
 import TodoForm from './TodoForm';
+import Pagination from '../Common/Pagination';
 import './Todo.css';
 
 const TodoPage = () => {
-  const { todos, loading, filters, updateFilters, resetFilters } = useTodos();
+  const { todos, loading, filters, pagination, updateFilters, resetFilters, nextPage, prevPage, goToPage } = useTodos();
   const [showForm, setShowForm] = useState(false);
   const [todoToEdit, setTodoToEdit] = useState(null);
 
@@ -114,7 +115,7 @@ const TodoPage = () => {
 
         <div className="todo-stats">
           <span className="stat">
-            Total: <strong>{todos.length}</strong>
+            Total: <strong>{pagination.totalItems}</strong>
           </span>
           <span className="stat">
             Active: <strong>{activeTodos.length}</strong>
@@ -142,15 +143,24 @@ const TodoPage = () => {
             </button>
           </div>
         ) : (
-          <div className="todo-list">
-            {todos.map(todo => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                onEdit={handleEditClick}
-              />
-            ))}
-          </div>
+          <>
+            <div className="todo-list">
+              {todos.map(todo => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onEdit={handleEditClick}
+                />
+              ))}
+            </div>
+
+            <Pagination
+              pagination={pagination}
+              onPrevPage={prevPage}
+              onNextPage={nextPage}
+              onGoToPage={goToPage}
+            />
+          </>
         )}
       </div>
 

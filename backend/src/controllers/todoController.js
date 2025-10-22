@@ -4,7 +4,7 @@ import { Todo, Tag } from '../models/index.js';
 /**
  * Get all todos for the authenticated user
  * GET /api/todos
- * Query params: status, priority, tags, sortBy, order, search
+ * Query params: status, priority, tags, sortBy, order, search, page, limit
  */
 export const getAllTodos = async (req, res) => {
   try {
@@ -15,7 +15,9 @@ export const getAllTodos = async (req, res) => {
       tags,
       sortBy = 'created_at',
       order = 'DESC',
-      search
+      search,
+      page = 1,
+      limit = 20
     } = req.query;
 
     // Build where clause
@@ -63,11 +65,19 @@ export const getAllTodos = async (req, res) => {
     const orderField = validSortFields.includes(sortBy) ? sortBy : 'created_at';
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
-    // Fetch todos
-    const todos = await Todo.findAll({
+    // Pagination
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
+    const offset = (pageNum - 1) * limitNum;
+
+    // Fetch todos with pagination
+    const { count, rows: todos } = await Todo.findAndCountAll({
       where,
       include,
-      order: [[orderField, orderDirection]]
+      order: [[orderField, orderDirection]],
+      limit: limitNum,
+      offset: offset,
+      distinct: true // Important for accurate count with includes
     });
 
     // Transform todos to safe objects
@@ -76,11 +86,21 @@ export const getAllTodos = async (req, res) => {
       tags: todo.tags.map(tag => tag.toSafeObject())
     }));
 
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(count / limitNum);
+
     res.json({
       success: true,
       data: {
         todos: safeTodos,
-        count: safeTodos.length
+        pagination: {
+          currentPage: pageNum,
+          totalPages,
+          totalItems: count,
+          itemsPerPage: limitNum,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1
+        }
       }
     });
   } catch (error) {

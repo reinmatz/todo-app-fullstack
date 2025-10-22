@@ -2,8 +2,8 @@ import api from './api';
 
 /**
  * Get all todos with optional filters
- * @param {Object} filters - { status, priority, tags, sortBy, order, search }
- * @returns {Promise<Object>} Todos array
+ * @param {Object} filters - { status, priority, tags, sortBy, order, search, page, limit }
+ * @returns {Promise<Object>} Todos array with pagination
  */
 export const getAllTodos = async (filters = {}) => {
   try {
@@ -17,6 +17,8 @@ export const getAllTodos = async (filters = {}) => {
     if (filters.sortBy) params.append('sortBy', filters.sortBy);
     if (filters.order) params.append('order', filters.order);
     if (filters.search) params.append('search', filters.search);
+    if (filters.page) params.append('page', filters.page);
+    if (filters.limit) params.append('limit', filters.limit);
 
     const response = await api.get(`/todos?${params.toString()}`);
     return response.data;

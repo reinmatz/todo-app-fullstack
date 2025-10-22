@@ -7,6 +7,8 @@ import authRoutes from './routes/auth.js';
 import todoRoutes from './routes/todos.js';
 import tagRoutes from './routes/tags.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
+import requestLogger from './middleware/requestLogger.js';
+import logger from './utils/logger.js';
 
 // Load environment variables
 dotenv.config();
@@ -32,6 +34,9 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request logging middleware
+app.use(requestLogger);
+
 // Apply general API rate limiting
 app.use('/api/', apiLimiter);
 
@@ -47,10 +52,19 @@ app.use('/api/tags', tagRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  logger.error('Application error', {
+    error: err.message,
+    stack: err.stack,
+    url: req.url,
+    method: req.method,
+    ip: req.ip,
+  });
+
   res.status(err.status || 500).json({
     success: false,
-    error: err.message || 'Internal Server Error'
+    error: process.env.NODE_ENV === 'production'
+      ? 'Internal Server Error'
+      : err.message
   });
 });
 
@@ -64,8 +78,11 @@ app.use((req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(`Server started successfully`, {
+    port: PORT,
+    environment: process.env.NODE_ENV || 'development',
+    nodeVersion: process.version,
+  });
 });
 
 export default app;

@@ -1,0 +1,24 @@
+FROM nginx:alpine
+
+# Copy nginx configuration
+COPY nginx/nginx.dev.conf /etc/nginx/conf.d/default.conf
+
+# Copy SSL certificates
+COPY certs/dev-cert.pem /etc/nginx/certs/dev-cert.pem
+COPY certs/dev-key.pem /etc/nginx/certs/dev-key.pem
+
+# Copy frontend build (will be mounted in dev)
+# In development, this is handled by volume mounts
+
+# Create necessary directories
+RUN mkdir -p /var/log/nginx /var/cache/nginx
+
+# Expose ports
+EXPOSE 80 443
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost/health || exit 1
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

@@ -20,13 +20,23 @@ export const TodoProvider = ({ children }) => {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 20,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
   const [filters, setFilters] = useState({
     status: 'all',
     priority: 'all',
     tags: [],
     sortBy: 'created_at',
     order: 'DESC',
-    search: ''
+    search: '',
+    page: 1,
+    limit: 20
   });
 
   // Fetch todos when filters change
@@ -54,11 +64,16 @@ export const TodoProvider = ({ children }) => {
       if (filters.sortBy) filterParams.sortBy = filters.sortBy;
       if (filters.order) filterParams.order = filters.order;
       if (filters.search) filterParams.search = filters.search;
+      if (filters.page) filterParams.page = filters.page;
+      if (filters.limit) filterParams.limit = filters.limit;
 
       const response = await todoService.getAllTodos(filterParams);
 
       if (response.success) {
         setTodos(response.data.todos);
+        if (response.data.pagination) {
+          setPagination(response.data.pagination);
+        }
       }
     } catch (err) {
       setError(err.message || 'Failed to fetch todos');
@@ -187,8 +202,37 @@ export const TodoProvider = ({ children }) => {
       tags: [],
       sortBy: 'created_at',
       order: 'DESC',
-      search: ''
+      search: '',
+      page: 1,
+      limit: 20
     });
+  };
+
+  /**
+   * Go to next page
+   */
+  const nextPage = () => {
+    if (pagination.hasNextPage) {
+      setFilters(prev => ({ ...prev, page: prev.page + 1 }));
+    }
+  };
+
+  /**
+   * Go to previous page
+   */
+  const prevPage = () => {
+    if (pagination.hasPrevPage) {
+      setFilters(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }));
+    }
+  };
+
+  /**
+   * Go to specific page
+   */
+  const goToPage = (pageNum) => {
+    if (pageNum >= 1 && pageNum <= pagination.totalPages) {
+      setFilters(prev => ({ ...prev, page: pageNum }));
+    }
   };
 
   const value = {
@@ -197,13 +241,17 @@ export const TodoProvider = ({ children }) => {
     loading,
     error,
     filters,
+    pagination,
     fetchTodos,
     createTodo,
     updateTodo,
     toggleTodo,
     deleteTodo,
     updateFilters,
-    resetFilters
+    resetFilters,
+    nextPage,
+    prevPage,
+    goToPage
   };
 
   return <TodoContext.Provider value={value}>{children}</TodoContext.Provider>;
