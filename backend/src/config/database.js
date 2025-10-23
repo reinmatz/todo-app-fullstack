@@ -25,11 +25,10 @@ export const connectDB = async () => {
     await sequelize.authenticate();
     console.log('Database connection established successfully');
 
-    // Sync models in development
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('Database models synchronized');
-    }
+    // Database schema is managed by init.sql
+    // Sync is disabled to prevent accidental schema changes
+    // Only validate that tables exist without altering them
+    console.log('Database connection ready (schema managed by migrations)');
   } catch (error) {
     console.error('Unable to connect to database:', error);
     process.exit(1);

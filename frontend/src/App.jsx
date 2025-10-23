@@ -7,6 +7,7 @@ import Home from './components/Layout/Home';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import TodoPage from './components/Todo/TodoPage';
+import TagManager from './components/Tag/TagManager';
 import ProtectedRoute from './components/Common/ProtectedRoute';
 
 function App() {
@@ -25,6 +26,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <TodoPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tags"
+                element={
+                  <ProtectedRoute>
+                    <TagManager />
                   </ProtectedRoute>
                 }
               />

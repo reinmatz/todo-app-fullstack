@@ -235,6 +235,65 @@ export const TodoProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Create a new tag
+   */
+  const createTag = async (tagData) => {
+    try {
+      setError(null);
+      const response = await tagService.createTag(tagData);
+
+      if (response.success) {
+        await fetchTags(); // Refresh tags list
+        return { success: true, tag: response.data.tag };
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to create tag';
+      setError(errorMessage);
+      throw err;
+    }
+  };
+
+  /**
+   * Update a tag
+   */
+  const updateTag = async (id, tagData) => {
+    try {
+      setError(null);
+      const response = await tagService.updateTag(id, tagData);
+
+      if (response.success) {
+        await fetchTags(); // Refresh tags list
+        await fetchTodos(); // Refresh todos to show updated tag
+        return { success: true, tag: response.data.tag };
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to update tag';
+      setError(errorMessage);
+      throw err;
+    }
+  };
+
+  /**
+   * Delete a tag
+   */
+  const deleteTag = async (id) => {
+    try {
+      setError(null);
+      const response = await tagService.deleteTag(id);
+
+      if (response.success) {
+        await fetchTags(); // Refresh tags list
+        await fetchTodos(); // Refresh todos to show updated tags
+        return { success: true };
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to delete tag';
+      setError(errorMessage);
+      throw err;
+    }
+  };
+
   const value = {
     todos,
     tags,
@@ -243,10 +302,14 @@ export const TodoProvider = ({ children }) => {
     filters,
     pagination,
     fetchTodos,
+    fetchTags,
     createTodo,
     updateTodo,
     toggleTodo,
     deleteTodo,
+    createTag,
+    updateTag,
+    deleteTag,
     updateFilters,
     resetFilters,
     nextPage,

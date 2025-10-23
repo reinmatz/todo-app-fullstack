@@ -10,10 +10,6 @@ const Tag = sequelize.define('Tag', {
   name: {
     type: DataTypes.STRING(50),
     allowNull: false,
-    unique: {
-      name: 'unique_tag_name',
-      msg: 'Tag name already exists'
-    },
     validate: {
       notNull: {
         msg: 'Tag name is required'
@@ -26,13 +22,40 @@ const Tag = sequelize.define('Tag', {
         msg: 'Tag name must be between 1 and 50 characters'
       }
     }
+  },
+  color: {
+    type: DataTypes.STRING(7),
+    allowNull: true,
+    defaultValue: '#3B82F6',
+    validate: {
+      is: {
+        args: /^#[0-9A-F]{6}$/i,
+        msg: 'Color must be a valid hex color code (e.g., #FF5733)'
+      }
+    }
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'users',
+      key: 'id'
+    },
+    onDelete: 'CASCADE'
   }
 }, {
   tableName: 'tags',
   timestamps: true,
   underscored: true,
   createdAt: 'created_at',
-  updatedAt: false // Tags don't need updated_at
+  updatedAt: false, // Tags don't need updated_at
+  indexes: [
+    {
+      unique: true,
+      fields: ['name', 'user_id'],
+      name: 'tags_name_user_id_key'
+    }
+  ]
 });
 
 /**

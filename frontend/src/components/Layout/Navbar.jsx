@@ -24,6 +24,9 @@ const Navbar = () => {
             <Link to="/todos" className="navbar-link">
               My Todos
             </Link>
+            <Link to="/tags" className="navbar-link">
+              Manage Tags
+            </Link>
             <div className="navbar-user">
               <span className="user-name">Hello, {user?.username || 'User'}</span>
               <button onClick={handleLogout} className="btn btn-logout">

@@ -38,12 +38,16 @@ CREATE INDEX idx_todos_due_date ON todos(due_date);
 -- Tags Table
 CREATE TABLE IF NOT EXISTS tags (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    name VARCHAR(50) NOT NULL,
+    color VARCHAR(7) DEFAULT '#3B82F6',
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(name, user_id)
 );
 
--- Create index on tag name
-CREATE INDEX idx_tags_name ON tags(name);
+-- Create indexes on tag name and user_id
+CREATE INDEX IF NOT EXISTS idx_tags_name ON tags(name);
+CREATE INDEX IF NOT EXISTS idx_tags_user_id ON tags(user_id);
 
 -- ToDo_Tags Junction Table (Many-to-Many relationship)
 CREATE TABLE IF NOT EXISTS todo_tags (
@@ -76,11 +80,5 @@ CREATE TRIGGER update_todos_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
--- Optional: Insert some default tags
-INSERT INTO tags (name) VALUES
-    ('Work'),
-    ('Personal'),
-    ('Urgent'),
-    ('Shopping'),
-    ('Health')
-ON CONFLICT (name) DO NOTHING;
+-- Note: Tags are now user-specific and created via the Tag Management UI
+-- No default tags are inserted here
