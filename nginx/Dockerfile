@@ -1,13 +1,10 @@
 FROM nginx:alpine
 
-# Install certbot for Let's Encrypt (production)
-RUN apk add --no-cache certbot certbot-nginx
+# Install certbot for Let's Encrypt (production) and wget for health checks
+RUN apk add --no-cache certbot certbot-nginx wget
 
-# Copy nginx configuration
-COPY nginx.prod.conf /etc/nginx/conf.d/default.conf
-
-# Copy frontend build
-COPY ../frontend/dist /usr/share/nginx/html
+# Copy nginx configuration from build context
+COPY nginx/nginx.prod.conf /etc/nginx/conf.d/default.conf
 
 # Create necessary directories
 RUN mkdir -p /var/www/certbot /var/log/nginx /var/cache/nginx

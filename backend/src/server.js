@@ -13,6 +13,21 @@ import logger from './utils/logger.js';
 // Load environment variables
 dotenv.config();
 
+// Validate JWT secret before starting server
+if (!process.env.JWT_SECRET) {
+  logger.error('FATAL: JWT_SECRET environment variable is not set');
+  logger.error('Generate a strong secret with: openssl rand -base64 64');
+  process.exit(1);
+}
+
+if (process.env.JWT_SECRET.length < 32) {
+  logger.error('FATAL: JWT_SECRET is too short (minimum 32 characters)');
+  logger.error('Generate a strong secret with: openssl rand -base64 64');
+  process.exit(1);
+}
+
+logger.info('JWT secret validated successfully');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
