@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTodos } from '../../contexts/TodoContext';
 import './Auth.css';
 
 const Register = () => {
   const navigate = useNavigate();
   const { register, loading } = useAuth();
+  const { resetFilters } = useTodos();
 
   const [formData, setFormData] = useState({
     username: '',
@@ -94,6 +96,8 @@ const Register = () => {
     });
 
     if (result.success) {
+      // Reset filters when user registers to ensure clean state
+      resetFilters();
       navigate('/todos');
     } else {
       setSubmitError(result.error || 'Registration failed. Please try again.');

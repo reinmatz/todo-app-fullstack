@@ -66,6 +66,7 @@ Tag.prototype.toSafeObject = function() {
   return {
     id: this.id,
     name: this.name,
+    color: this.color,
     created_at: this.created_at
   };
 };

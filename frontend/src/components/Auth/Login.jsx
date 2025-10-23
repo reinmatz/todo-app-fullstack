@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTodos } from '../../contexts/TodoContext';
 import './Auth.css';
 
 const Login = () => {
   const navigate = useNavigate();
   const { login, loading } = useAuth();
+  const { resetFilters } = useTodos();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -63,6 +65,8 @@ const Login = () => {
     });
 
     if (result.success) {
+      // Reset filters when user logs in to ensure clean state
+      resetFilters();
       navigate('/todos');
     } else {
       setSubmitError(result.error || 'Login failed. Please try again.');

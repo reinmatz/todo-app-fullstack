@@ -1,13 +1,17 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTodos } from '../../contexts/TodoContext';
 import './Layout.css';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { resetFilters } = useTodos();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
+    // Reset filters when user logs out to ensure clean state for next login
+    resetFilters();
     await logout();
     navigate('/login');
   };
